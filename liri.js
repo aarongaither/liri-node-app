@@ -1,7 +1,3 @@
-const keys = require('./keys.js');
-const fs = require('fs');
-const logger = fs.createWriteStream('log.txt', {flags: 'a'});
-
 const args = (function () {
     let argsIn = process.argv.splice(2)
     let userCommand = argsIn[0];
@@ -19,12 +15,16 @@ const args = (function () {
 })()
 
 const commands = (function(){
+    const fs = require('fs');
+    const keys = require('./keys.js');
+    const logger = args.logging ? fs.createWriteStream('log.txt', {flags: 'a'}) : 'no-log';
+
     let _logData = function (data) {
-         if (args.logging) {
-           logger.write(data+'\n');  
-         }
-         if (args.printing){
-            console.log(data) 
+        if (args.logging) {
+            logger.write(data+'\n');  
+        }
+        if (args.printing){
+            console.log(data);
         }
     }
 
