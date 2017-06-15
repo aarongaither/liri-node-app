@@ -1,2 +1,6 @@
 spotify-this-song,"I Want it That Way"
+spotify-this-song,"All men are liars"
+spotify-this-song,"ball of confusion"
+spotify-this-song,"pictures of you"
+spotify-this-song,"one part lullaby"
 movie-this,"Mr. Nobody"
