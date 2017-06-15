@@ -9,3 +9,5 @@ exports.spotify = {
     clientID: '0cdfaea591014369a3ed5044f1ea09d9',
     clientSecret: '8db930c41a694e55a32e22003901a0bd'
 }
+
+exports.OMDB = '40e9cece';

@@ -14,7 +14,7 @@ const commands = {
           access_token_secret:  keys.twitter.access_token_secret
         });
 
-        client.get('/statuses/user_timeline.json', { count: 20 }, function(error, tweets, response) {
+        client.get('/statuses/user_timeline.json', { count: 20 }, function(err, tweets, response) {
             if ( err ) {
                 console.log('Error occurred: ' + err);
                 return;
@@ -48,7 +48,23 @@ const commands = {
     }, 
     'movie-this': (option) => {
         let movie = option || "Mr. Nobody";
-        console.log(`Movie: ${movie}`);
+        const request = require('request');
+ 
+        let movieAtt = ['Title', 'Year', 'imdbRating', 'Country', 'Language', 'Plot', 'Actors', 'Website'];
+
+        request({
+            method: 'GET',
+            uri: `http://www.omdbapi.com/?apikey=${keys.OMDB}&t=${movie}`,
+            json: true
+        }, function (err, res, body){
+            if ( err ) {
+                console.log('Error occurred: ' + err);
+                return;
+            }
+            movieAtt.forEach( function(element, index) {
+                console.log(`${element}: ${body[element]}`);
+            });
+        })
     }, 
     'do-what-it-says': () => {
         let lines = fs.readFileSync('random.txt').toString().replace('\r','').split('\n');
