@@ -5,6 +5,7 @@ const userCommand = process.argv[2];
 const option = process.argv[3];
 
 const logger = fs.createWriteStream('log.txt', {flags: 'a'});
+const logging = process.argv[4] || true;
 
 function logData (data) {
     logger.write(data+'\n');
@@ -84,7 +85,8 @@ const commands = {
         let [userCommand, option] = lines[Math.floor(Math.random() * lines.length)].split(',');
         logData('__do-what-it-says__')
         commands[userCommand](option)
-    }
+    },
+    'clear-log': () => fs.writeFile('log.txt', '', () => console.log('Log cleared.'))
 };
 
 !(userCommand in commands) ? console.log('Command not recognized. I am not THAT smart...') : commands[userCommand](option)
