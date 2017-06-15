@@ -1,19 +1,42 @@
 const keys = require('./keys.js');
 const fs = require('fs');
-
-const userCommand = process.argv[2];
-const option = process.argv[3];
-
 const logger = fs.createWriteStream('log.txt', {flags: 'a'});
-const logging = process.argv[4] || true;
 
-function logData (data) {
-    logger.write(data+'\n');
-    console.log(data)
-}
+const args = (function () {
+    let argsIn = process.argv.splice(2)
+    let userCommand = argsIn[0];
+    let option = argsIn[1];
 
-const commands = {
-    'my-tweets': () => {
+    let logging = argsIn.indexOf('--nolog') !== -1 ? false : true;
+    let printing = argsIn.indexOf('--noprint') !== -1 ? false : true;
+
+    return {
+        userCommand,
+        option,
+        logging,
+        printing
+    }
+})()
+
+const commands = (function(){
+    let _logData = function (data) {
+         if (args.logging) {
+           logger.write(data+'\n');  
+         }
+         if (args.printing){
+            console.log(data) 
+        }
+    }
+
+    let clearLog = function () {
+        fs.writeFile('log.txt', '', () => {
+            if (args.printing) {
+                console.log('Log cleared.')
+            }
+        })
+    };
+
+    let tweetFetch = function () {
         const Twitter = require('twitter');
         let client = new Twitter({
             consumer_key: keys.twitter.consumer_key,
@@ -23,20 +46,21 @@ const commands = {
         });
 
         client.get('/statuses/user_timeline.json', { count: 20 }, function(err, tweets, response) {
-            if ( err ) {
+            if (err) {
                 console.log('Error occurred: ' + err);
                 return;
             }
-            logData('__My tweets__')
+            _logData('__My tweets__')
             tweets.forEach( function(element) {
                 let tweet = element.text;
                 let d = new Date(element.created_at).toDateString();
-                logData(`${d}: ${tweet}`)
+                _logData(`${d}: ${tweet}`)
             });
-            logData('\r')
+            _logData('\r')
         });
-    },
-    'spotify-this-song': (option) => {
+    };
+
+    let songFetch = function (option) {
         let song = option || "Jungle Love";
         const Spotify = require('node-spotify-api');
         let client = new Spotify({
@@ -45,23 +69,24 @@ const commands = {
         });
          
         client.search({ type: 'track', query: song }, function(err, data) {
-            if ( err ) {
+            if (err) {
                 console.log('Error occurred: ' + err);
                 return;
             }
             let songData = data.tracks.items[0];
-            logData('__spotify-this-song__')
-            logData(`Artist: ${songData.artists[0].name}`)
-            logData(`Song Title: ${songData.name}`)
-            logData(`Album: ${songData.album.name}`)
-            logData(`Link: ${songData.preview_url}`)
-            logData('\r')
+            _logData('__spotify-this-song__')
+            _logData(`Artist: ${songData.artists[0].name}`)
+            _logData(`Song Title: ${songData.name}`)
+            _logData(`Album: ${songData.album.name}`)
+            _logData(`Link: ${songData.preview_url}`)
+            _logData('\r')
         });
-    }, 
-    'movie-this': (option) => {
+    };
+
+    let movieFetch = function (option) {
         let movie = option || "Mr. Nobody";
         const request = require('request');
- 
+        
         let movieAtt = ['Title', 'Year', 'imdbRating', 'Country', 'Language', 'Plot', 'Actors', 'Website'];
 
         request({
@@ -69,24 +94,32 @@ const commands = {
             uri: `http://www.omdbapi.com/?apikey=${keys.OMDB}&t=${movie}`,
             json: true
         }, function (err, res, body){
-            if ( err ) {
+            if (err) {
                 console.log('Error occurred: ' + err);
                 return;
             }
-            logData('__movie-this__')
+            _logData('__movie-this__')
             movieAtt.forEach( function(element, index) {
-                logData(`${element}: ${body[element]}`);
+                _logData(`${element}: ${body[element]}`);
             });
-            logData('\r')
+            _logData('\r')
         })
-    }, 
-    'do-what-it-says': () => {
-        let lines = fs.readFileSync('random.txt').toString().replace('\r','').split('\n');
-        let [userCommand, option] = lines[Math.floor(Math.random() * lines.length)].split(',');
-        logData('__do-what-it-says__')
-        commands[userCommand](option)
-    },
-    'clear-log': () => fs.writeFile('log.txt', '', () => console.log('Log cleared.'))
-};
+    };
 
-!(userCommand in commands) ? console.log('Command not recognized. I am not THAT smart...') : commands[userCommand](option)
+    let randomFetch = function () {
+        let lines = fs.readFileSync('random.txt').toString().replace('\r','').split('\n');
+        let [command, option] = lines[Math.floor(Math.random() * lines.length)].split(',');
+        _logData('__do-what-it-says__')
+        commands[command](option)
+    };
+
+    return {
+        'clear-log': clearLog,
+        'my-tweets': tweetFetch,
+        'spotify-this-song': songFetch,
+        'movie-this': movieFetch,
+        'do-what-it-says': randomFetch
+    }
+})()
+
+!(args.userCommand in commands) ? console.log('Command not recognized. I am not THAT smart...') : commands[args.userCommand](args.option)
