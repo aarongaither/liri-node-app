@@ -3,21 +3,24 @@ const args = (function () {
     let userCommand = argsIn[0];
     let option = argsIn[1];
 
-    let logging = argsIn.indexOf('--nolog') !== -1 ? false : true;
-    let printing = argsIn.indexOf('--noprint') !== -1 ? false : true;
+    let logging = argsIn.indexOf('--nolog') === -1 ? true : false;
+    let printing = argsIn.indexOf('--noprint') === -1 ? true : false;
+    let logArg = argsIn.indexOf('--logfile');
+    let logFile = logArg === -1 ? 'log.txt' : argsIn[logArg + 1];
 
     return {
         userCommand,
         option,
         logging,
-        printing
+        printing,
+        logFile
     }
 })()
 
 const commands = (function(){
     const fs = require('fs');
     const keys = require('./keys.js');
-    const logger = args.logging ? fs.createWriteStream('log.txt', {flags: 'a'}) : 'no-log';
+    const logger = args.logging ? fs.createWriteStream(args.logFile, {flags: 'a'}) : 'no-log';
 
     let _logData = function (data) {
         if (args.logging) {
@@ -29,7 +32,7 @@ const commands = (function(){
     }
 
     let clearLog = function () {
-        fs.writeFile('log.txt', '', () => {
+        fs.writeFile(args.logFile, '', () => {
             if (args.printing) {
                 console.log('Log cleared.')
             }
