@@ -1,10 +1,10 @@
-let keys = require('./keys.js');
-let fs = require('fs');
+const keys = require('./keys.js');
+const fs = require('fs');
 
-let userCommand = process.argv[2];
-let option = process.argv[3];
+const userCommand = process.argv[2];
+const option = process.argv[3];
 
-let logger = fs.createWriteStream('log.txt', {flags: 'a'});
+const logger = fs.createWriteStream('log.txt', {flags: 'a'});
 
 function logData (data) {
     logger.write(data+'\n');
@@ -13,12 +13,12 @@ function logData (data) {
 
 const commands = {
     'my-tweets': () => {
-        let Twitter = require('twitter');
+        const Twitter = require('twitter');
         let client = new Twitter({
-          consumer_key: keys.twitter.consumer_key,
-          consumer_secret: keys.twitter.consumer_secret,
-          access_token_key: keys.twitter.access_token_key,
-          access_token_secret:  keys.twitter.access_token_secret
+            consumer_key: keys.twitter.consumer_key,
+            consumer_secret: keys.twitter.consumer_secret,
+            access_token_key: keys.twitter.access_token_key,
+            access_token_secret:  keys.twitter.access_token_secret
         });
 
         client.get('/statuses/user_timeline.json', { count: 20 }, function(err, tweets, response) {
@@ -37,7 +37,7 @@ const commands = {
     },
     'spotify-this-song': (option) => {
         let song = option || "Jungle Love";
-        let Spotify = require('node-spotify-api');
+        const Spotify = require('node-spotify-api');
         let client = new Spotify({
           id: keys.spotify.clientID,
           secret: keys.spotify.clientSecret
