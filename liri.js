@@ -110,10 +110,12 @@ const commands = (function(){
     };
 
     let randomFetch = function () {
-        let lines = fs.readFileSync('random.txt').toString().replace('\r','').split('\n');
-        let [command, option] = lines[Math.floor(Math.random() * lines.length)].split(',');
-        _logData('__do-what-it-says__')
-        commands[command](option)
+        fs.readFile('random.txt', 'utf8', function (err, data) {
+            let lines = data.toString().replace('\r','').split('\n');
+            let [command, option] = lines[Math.floor(Math.random() * lines.length)].split(',');
+            _logData('__do-what-it-says__')
+            commands[command](option)
+        })
     };
 
     return {
