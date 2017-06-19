@@ -1,7 +1,7 @@
+const inquirer = require('inquirer');
+
 const args = (function () {
     let argsIn = process.argv.splice(2)
-    let userCommand = argsIn[0];
-    let option = argsIn[1];
 
     let logging = argsIn.indexOf('--nolog') === -1 ? true : false;
     let printing = argsIn.indexOf('--noprint') === -1 ? true : false;
@@ -9,8 +9,6 @@ const args = (function () {
     let logFile = logArg === -1 ? 'log.txt' : argsIn[logArg + 1];
 
     return {
-        userCommand,
-        option,
         logging,
         printing,
         logFile
@@ -34,7 +32,7 @@ const commands = (function(){
     let clearLog = function () {
         fs.writeFile(args.logFile, '', () => {
             if (args.printing) {
-                console.log('Log cleared.')
+                console.log(`${args.logFile} cleared.`)
             }
         })
     };
@@ -64,7 +62,7 @@ const commands = (function(){
     };
 
     let songFetch = function (option) {
-        let song = option || "Jungle Love";
+        let song = option || 'Jungle Love';
         const Spotify = require('node-spotify-api');
         let client = new Spotify({
           id: keys.spotify.clientID,
@@ -87,11 +85,9 @@ const commands = (function(){
     };
 
     let movieFetch = function (option) {
-        let movie = option || "Mr. Nobody";
         const request = require('request');
-        
+        let movie = option || 'Mr. Nobody';
         let movieAtt = ['Title', 'Year', 'imdbRating', 'Country', 'Language', 'Plot', 'Actors', 'Website'];
-
         request({
             method: 'GET',
             uri: `http://www.omdbapi.com/?apikey=${keys.OMDB}&t=${movie}`,
@@ -106,7 +102,10 @@ const commands = (function(){
                 _logData(`${element}: ${body[element]}`);
             });
             _logData('\r')
-        })
+        });
+
+
+
     };
 
     let randomFetch = function () {
@@ -127,4 +126,24 @@ const commands = (function(){
     }
 })()
 
-!(args.userCommand in commands) ? console.log('Command not recognized. I am not THAT smart...') : commands[args.userCommand](args.option)
+inquirer.prompt(
+    {
+      type: 'list',
+      message: 'Hi, I am LIRI, what can I do for you?',
+      choices: ['my-tweets','movie-this', 'spotify-this-song', 'do-what-it-says', 'clear-log'],
+      name: 'command'
+    }).then(function (res) {
+        if (res.command === 'movie-this' || res.command === 'spotify-this-song'){
+            let thing = res.command === 'movie-this' ? 'movie' : 'song';
+            inquirer.prompt(
+                {
+                    type: 'input',
+                    message: `Which ${thing} would you like info for?`,
+                    name: 'option'
+                }).then(function (res2) {
+                    commands[res.command](res2.option)
+                })
+            } else {
+                commands[res.command]()
+            }
+});
