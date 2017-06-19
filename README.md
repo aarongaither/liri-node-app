@@ -1,5 +1,13 @@
 # Week 10 (LIRI Bot)
 
+### Command Line Arguments
+
+In addition to the requirements below, LIRI also accepts a few command line arguments that you can use to modify her behavior.
+
+* '--nolog' : Next output will not be written to a log file.
+* '--noprint' : Next output will not be written to the terminal.
+* '--logfile "filename"' : Next output will be written to specified file. 
+
 ### Overview
 
 In this assignment, you will make LIRI. LIRI is like iPhone's SIRI. However, while SIRI is a Speech Interpretation and Recognition Interface, LIRI is a _Language_ Interpretation and Recognition Interface. LIRI will be a command line node app that takes in parameters and gives you back data.
